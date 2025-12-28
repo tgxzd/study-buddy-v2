@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate, Outlet, useMatches } from '@tanstack/react-router'
-import { ArrowLeft, Users, Calendar, FileText, Settings, UserPlus, Trash2, Copy } from 'lucide-react'
+import { ArrowLeft, Users, Calendar, FileText, Settings, UserPlus, Trash2, Copy, LogOut, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
@@ -49,6 +49,8 @@ function GroupDetail() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isLeaving, setIsLeaving] = useState(false)
+  const [isKicking, setIsKicking] = useState<string | null>(null)
 
   // Check if we're on a child route (edit, files, requests)
   const matches = useMatches()
@@ -90,6 +92,37 @@ function GroupDetail() {
     } catch (err: any) {
       alert(err.message || 'Failed to delete group')
       setIsDeleting(false)
+    }
+  }
+
+  const handleLeave = async () => {
+    if (!confirm('Are you sure you want to leave this group?')) {
+      return
+    }
+
+    try {
+      setIsLeaving(true)
+      await groupsApi.leave(id)
+      navigate({ to: '/groups' })
+    } catch (err: any) {
+      alert(err.message || 'Failed to leave group')
+      setIsLeaving(false)
+    }
+  }
+
+  const handleKickMember = async (memberId: string, memberName: string) => {
+    if (!confirm(`Are you sure you want to remove ${memberName} from the group?`)) {
+      return
+    }
+
+    try {
+      setIsKicking(memberId)
+      await groupsApi.kickMember(id, memberId)
+      // Refresh the group data
+      fetchGroup()
+    } catch (err: any) {
+      alert(err.message || 'Failed to remove member')
+      setIsKicking(null)
     }
   }
 
@@ -145,7 +178,7 @@ function GroupDetail() {
             </div>
 
             <div className="flex gap-3">
-              {isOwner && (
+              {isOwner ? (
                 <>
                   <Button
                     variant="secondary"
@@ -166,6 +199,16 @@ function GroupDetail() {
                     {isDeleting ? 'Deleting...' : 'Delete'}
                   </Button>
                 </>
+              ) : (
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={handleLeave}
+                  disabled={isLeaving}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  {isLeaving ? 'Leaving...' : 'Leave Group'}
+                </Button>
               )}
             </div>
           </div>
@@ -286,9 +329,22 @@ function GroupDetail() {
                         Owner
                       </span>
                     ) : (
-                      <span className="px-3 py-1 text-xs font-medium bg-white/10 text-text-secondary rounded-full">
-                        Member
-                      </span>
+                      <>
+                        <span className="px-3 py-1 text-xs font-medium bg-white/10 text-text-secondary rounded-full">
+                          Member
+                        </span>
+                        {isOwner && member.user.id !== user?.id && (
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleKickMember(member.user.id, member.user.name)}
+                            disabled={isKicking === member.user.id}
+                          >
+                            <X className="w-3 h-3 mr-1" />
+                            {isKicking === member.user.id ? 'Removing...' : 'Remove'}
+                          </Button>
+                        )}
+                      </>
                     )}
                     <span className="text-xs text-text-muted">
                       Joined {new Date(member.joinedAt).toLocaleDateString()}

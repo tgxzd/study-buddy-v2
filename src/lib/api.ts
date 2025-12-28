@@ -130,6 +130,16 @@ export const groupsApi = {
 
   search: (query: string) =>
     apiRequest<{ groups: any[] }>(`/groups/search?q=${encodeURIComponent(query)}`),
+
+  leave: (id: string) =>
+    apiRequest<{ message: string }>(`/groups/${id}/leave`, {
+      method: 'POST',
+    }),
+
+  kickMember: (id: string, memberId: string) =>
+    apiRequest<{ message: string }>(`/groups/${id}/members/${memberId}`, {
+      method: 'DELETE',
+    }),
 }
 
 /**

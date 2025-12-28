@@ -1,10 +1,48 @@
 import { Router } from 'express'
-import { authenticate, type AuthRequest } from '../middleware/authMiddleware'
+import { authenticate, optionalAuth, type AuthRequest } from '../middleware/authMiddleware'
 import { asyncHandler } from '../middleware/errorHandler'
 
 const router = Router()
 
-// All group routes require authentication
+/**
+ * GET /api/groups/search?q=query
+ * Search for groups by name (public endpoint - no auth required)
+ */
+router.get('/search', asyncHandler(async (req: AuthRequest, res) => {
+  const { prisma } = await import('../config/database')
+
+  const query = req.query.q as string
+
+  if (!query || query.trim().length === 0) {
+    return res.json({ groups: [] })
+  }
+
+  const groups = await prisma.studyGroup.findMany({
+    where: {
+      name: {
+        contains: query.trim(),
+        mode: 'insensitive',
+      },
+    },
+    include: {
+      owner: {
+        select: {
+          name: true,
+        },
+      },
+      _count: {
+        select: {
+          members: true,
+        },
+      },
+    },
+    take: 20,
+  })
+
+  res.json({ groups })
+}))
+
+// All other group routes require authentication
 router.use(authenticate)
 
 /**
@@ -268,41 +306,60 @@ router.delete('/:id/requests/:requestId', asyncHandler(async (req: AuthRequest, 
 }))
 
 /**
- * GET /api/groups/search?q=query
- * Search for groups by name (public endpoint)
+ * POST /api/groups/:id/leave
+ * Leave a group (members only, not owner)
  */
-router.get('/search', asyncHandler(async (req: AuthRequest, res) => {
-  const { prisma } = await import('../config/database')
+router.post('/:id/leave', asyncHandler(async (req: AuthRequest, res) => {
+  const { getGroupById, removeGroupMember } = await import('../services/groupService')
 
-  const query = req.query.q as string
+  const group = await getGroupById(req.params.id)
 
-  if (!query || query.trim().length === 0) {
-    return res.json({ groups: [] })
+  if (!group) {
+    return res.status(404).json({ error: 'Group not found' })
   }
 
-  const groups = await prisma.studyGroup.findMany({
-    where: {
-      name: {
-        contains: query.trim(),
-        mode: 'insensitive',
-      },
-    },
-    include: {
-      owner: {
-        select: {
-          name: true,
-        },
-      },
-      _count: {
-        select: {
-          members: true,
-        },
-      },
-    },
-    take: 20,
-  })
+  // Owner cannot leave their own group (they must delete or transfer ownership)
+  if (group.ownerId === req.user!.id) {
+    return res.status(400).json({ error: 'Group owner cannot leave. Delete the group instead.' })
+  }
 
-  res.json({ groups })
+  // Check if user is a member
+  const isMember = group.members.some((m) => m.user.id === req.user!.id)
+  if (!isMember) {
+    return res.status(400).json({ error: 'You are not a member of this group' })
+  }
+
+  await removeGroupMember(req.params.id, req.user!.id)
+
+  res.json({ message: 'Successfully left the group' })
+}))
+
+/**
+ * DELETE /api/groups/:id/members/:memberId
+ * Kick a member from the group (owner only)
+ */
+router.delete('/:id/members/:memberId', asyncHandler(async (req: AuthRequest, res) => {
+  const { getGroupById, removeGroupMember } = await import('../services/groupService')
+
+  const group = await getGroupById(req.params.id)
+
+  if (!group) {
+    return res.status(404).json({ error: 'Group not found' })
+  }
+
+  // Only owner can kick members
+  if (group.ownerId !== req.user!.id) {
+    return res.status(403).json({ error: 'Only group owner can kick members' })
+  }
+
+  // Cannot kick the owner
+  if (req.params.memberId === group.ownerId) {
+    return res.status(400).json({ error: 'Cannot kick the group owner' })
+  }
+
+  await removeGroupMember(req.params.id, req.params.memberId)
+
+  res.json({ message: 'Member removed successfully' })
 }))
 
 export default router
