@@ -47,9 +47,12 @@ app.use(errorHandler)
 
 // Only start listening if not running in Vite (for production)
 if (process.env.NODE_ENV !== 'development' || !process.env.VITE) {
-  const PORT = process.env.PORT || 3000
-  app.listen(PORT, () => {
+  const PORT = Number(process.env.PORT) || 3000
+  const HOST = process.env.HOST || '0.0.0.0' // Allow external connections for port forwarding
+
+  app.listen(PORT, HOST, () => {
     console.log(`Server running on http://localhost:${PORT}`)
+    console.log(`Accessible via network at http://${HOST}:${PORT}`)
   })
 }
 
