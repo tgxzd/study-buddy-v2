@@ -24,24 +24,32 @@ export function apiServer(): Plugin {
 
         if (url.startsWith('/api')) {
           // Handle API requests with Express
-          // Express needs the raw req/res, which it will enhance
           expressApp(req as any, res as any)
         } else {
-          // Handle non-API requests with Vite
-          // Call each original listener until the response is handled
-          for (const listener of originalListeners) {
-            listener(req, res)
-            // Stop if response was sent (writableEnded or headersSent)
-            if (res.writableEnded || res.headersSent) {
-              break
+          // Handle non-API requests with Vite (for SPA routing)
+          // Let Vite's transform middleware handle the request
+          viteServer.middlewares(req, res, (err?: Error) => {
+            if (err) {
+              console.error('Vite middleware error:', err)
+              res.statusCode = 500
+              res.end('Internal Server Error')
+            } else {
+              // If no middleware handled it, let Vite's default handler take over
+              for (const listener of originalListeners) {
+                listener(req, res)
+                if (res.writableEnded || res.headersSent) {
+                  break
+                }
+              }
             }
-          }
+          })
         }
       })
 
       httpServer.on('listening', () => {
         const port = viteServer.config.server.port || 3000
         console.log(`\n➜ API ready at http://localhost:${port}/api`)
+        console.log(`\n➜ App running at http://localhost:${port}`)
       })
     },
   }
