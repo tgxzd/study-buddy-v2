@@ -173,23 +173,6 @@ function LoginPage() {
             </Button>
           </form>
 
-          {/* Divider */}
-          <div className="flex items-center gap-4 my-8">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-text-muted text-sm">or continue with</span>
-            <div className="flex-1 h-px bg-white/10" />
-          </div>
-
-          {/* Social Login (placeholder) */}
-          <div className="grid grid-cols-2 gap-4">
-            <Button variant="secondary" size="md" fullWidth disabled>
-              Google
-            </Button>
-            <Button variant="secondary" size="md" fullWidth disabled>
-              GitHub
-            </Button>
-          </div>
-
           {/* Sign Up Link */}
           <p className="text-center text-text-secondary mt-8">
             Don't have an account?{' '}
