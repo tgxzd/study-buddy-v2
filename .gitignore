@@ -48,3 +48,8 @@ count.txt
 .nitro
 .tanstack
 .wrangler
+
+# Additional security - ignore any env files in subdirectories
+**/.env
+**/.env.local
+**/.env.*.local
