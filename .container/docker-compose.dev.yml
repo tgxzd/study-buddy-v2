@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: studybuddy-postgres-dev
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-studybuddy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-studybuddy123}
+      POSTGRES_DB: ${POSTGRES_DB:-studybuddy}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-studybuddy}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build:
+      context: ..
+      dockerfile: .container/Dockerfile
+    container_name: studybuddy-app-dev
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://${POSTGRES_USER:-studybuddy}:${POSTGRES_PASSWORD:-studybuddy123}@postgres:5432/${POSTGRES_DB:-studybuddy}?schema=public
+      DATABASE_HOST: postgres
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      SESSION_SECRET: ${SESSION_SECRET:-dev-session-secret}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../app:/app/app
+      - ../prisma:/app/prisma
+      - ../public:/app/public
+      - ../src:/app/src
+      - ../index.html:/app/index.html
+      - ../package.json:/app/package.json
+      - ../yarn.lock:/app/yarn.lock
+      - ../vite.config.ts:/app/vite.config.ts
+      - ../tsconfig.json:/app/tsconfig.json
+      - ../.container/scripts:/app/scripts
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["/app/scripts/1-start-dev.sh"]
+
+volumes:
+  postgres_dev_data:

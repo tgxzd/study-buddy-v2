@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+  STUDENT
+  ADMIN
+}
+
+enum JoinRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+// Models
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  ownedGroups      StudyGroup[]
+  memberships      GroupMember[]
+  joinRequests     GroupJoinRequest[]
+  uploadedFiles    File[]
+  chatMessages     ChatMessage[]
+  createdSessions  StudySession[]
+}
+
+model StudyGroup {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  inviteCode  String   @unique
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  owner        User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members      GroupMember[]
+  joinRequests GroupJoinRequest[]
+  files        File[]
+  sessions     StudySession[]
+  chatMessages ChatMessage[]
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  userId    String
+  groupId   String
+  joinedAt  DateTime @default(now())
+
+  // Unique constraint
+  @@unique([userId, groupId])
+
+  // Relations
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+model GroupJoinRequest {
+  id        String           @id @default(cuid())
+  userId    String
+  groupId   String
+  status    JoinRequestStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  // Unique constraint
+  @@unique([userId, groupId])
+
+  // Relations
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+model File {
+  id         String   @id @default(cuid())
+  filename   String
+  data       Bytes    // Store file data as bytes (Base64 encoding) - Phase 1
+  size       Int      // File size in bytes
+  mimeType   String   // e.g., "application/pdf", "image/jpeg"
+  groupId    String
+  uploaderId String
+  createdAt  DateTime @default(now())
+
+  // Index for faster queries
+  @@index([groupId])
+
+  // Relations
+  group    StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  uploader User       @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+}
+
+// File Storage Strategy:
+// Phase 1 (Current): Store files directly in database as Bytes (Base64 encoded)
+//   - Size limit: 5MB per file (PostgreSQL limitation)
+//   - Simple implementation, no external services
+//   - Good for MVP and small-scale applications
+//
+// Phase 2 (Future): Migrate to AWS S3 or similar object storage
+//   - Replace `data` field with `url` field (String)
+//   - Store S3 URLs instead of file bytes
+//   - Support larger files
+//   - Better for production scale
+
+model StudySession {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  link        String?
+  location    String?
+  groupId     String
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  group   StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  creator User       @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  groupId   String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  // Index for faster queries
+  @@index([groupId, createdAt])
+}

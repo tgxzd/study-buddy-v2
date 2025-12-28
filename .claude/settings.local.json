@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(yarn add:*)",
+      "Bash(yarn prisma init:*)",
+      "Bash(yarn prisma generate:*)",
+      "Bash(yarn build:*)",
+      "Bash(yarn typecheck)",
+      "Bash(yarn tsc:*)"
+    ]
+  }
+}
