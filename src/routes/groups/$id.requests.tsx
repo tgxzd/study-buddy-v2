@@ -26,10 +26,7 @@ function JoinRequests() {
   const [requests, setRequests] = useState<JoinRequest[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    fetchRequests()
-  }, [id])
+  const [processingRequestId, setProcessingRequestId] = useState<string | null>(null)
 
   const fetchRequests = async () => {
     try {
@@ -43,13 +40,20 @@ function JoinRequests() {
     }
   }
 
+  useEffect(() => {
+    fetchRequests()
+  }, [id])
+
   const handleRequest = async (requestId: string, action: 'accept' | 'reject') => {
+    setProcessingRequestId(requestId)
     try {
       await groupsApi.handleRequest(id, requestId, action)
       // Refresh the list
       fetchRequests()
     } catch (err: any) {
       alert(err.message || `Failed to ${action} request`)
+    } finally {
+      setProcessingRequestId(null)
     }
   }
 
@@ -143,17 +147,33 @@ function JoinRequests() {
                         variant="secondary"
                         size="sm"
                         onClick={() => handleRequest(request.id, 'reject')}
-                        className="bg-red-500/20 hover:bg-red-500/30 text-red-400 border-red-500/20"
+                        disabled={processingRequestId === request.id}
+                        className="bg-red-500/20 hover:bg-red-500/30 text-red-400 border-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <X className="w-4 h-4" />
+                        {processingRequestId === request.id ? (
+                          <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <X className="w-4 h-4" />
+                        )}
                       </Button>
                       <Button
                         variant="primary"
                         size="sm"
                         onClick={() => handleRequest(request.id, 'accept')}
+                        disabled={processingRequestId === request.id}
+                        className="disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Check className="w-4 h-4 mr-1" />
-                        Accept
+                        {processingRequestId === request.id ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4 mr-1" />
+                            Accept
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authenticate, optionalAuth, type AuthRequest } from '../middleware/authMiddleware'
+import { authenticate, type AuthRequest } from '../middleware/authMiddleware'
 import { asyncHandler } from '../middleware/errorHandler'
 
 const router = Router()

@@ -5,6 +5,7 @@ import { asyncHandler } from '../middleware/errorHandler'
 
 const router = Router()
 const COOKIE_NAME = 'jwt'
+const OLD_COOKIE_NAME = 'auth_token' // Legacy cookie name for migration
 const MAX_AGE = 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds (for res.cookie)
 const SESSION_AGE = 24 * 60 * 60 * 1000 // 24 hours for session cookies (fallback)
 
@@ -46,6 +47,8 @@ router.post('/register', asyncHandler(async (req, res) => {
   }
 
   res.cookie(COOKIE_NAME, token, cookieOptions)
+  // Clear old cookie name if exists
+  res.clearCookie(OLD_COOKIE_NAME, { path: '/' })
 
   console.log('[REGISTER] Cookie set for user:', user.email, 'rememberMe:', rememberMe, 'maxAge:', cookieOptions.maxAge)
 
@@ -90,6 +93,8 @@ router.post('/login', asyncHandler(async (req, res) => {
   }
 
   res.cookie(COOKIE_NAME, result.token, cookieOptions)
+  // Clear old cookie name if exists
+  res.clearCookie(OLD_COOKIE_NAME, { path: '/' })
 
   console.log('[LOGIN] Cookie set for user:', result.user.email, 'rememberMe:', rememberMe, 'maxAge:', cookieOptions.maxAge)
 
@@ -103,9 +108,9 @@ router.post('/login', asyncHandler(async (req, res) => {
  * Logout user
  */
 router.post('/logout', asyncHandler(async (_req, res) => {
-  res.clearCookie(COOKIE_NAME, {
-    path: '/',
-  })
+  // Clear both old and new cookie names
+  res.clearCookie(COOKIE_NAME, { path: '/' })
+  res.clearCookie(OLD_COOKIE_NAME, { path: '/' })
   res.json({ message: 'Logged out successfully' })
 }))
 
@@ -116,7 +121,8 @@ router.post('/logout', asyncHandler(async (_req, res) => {
 router.get('/me', asyncHandler(async (req, res) => {
   // Cookie is parsed by cookie-parser middleware
   const cookies = (req as any).cookies
-  const token = cookies?.jwt
+  // Check for new cookie name first, then fall back to old name for backward compatibility
+  const token = cookies?.jwt || cookies?.auth_token
 
   console.log('[AUTH ME] Cookies:', cookies)
   console.log('[AUTH ME] Token:', token ? 'found' : 'not found')

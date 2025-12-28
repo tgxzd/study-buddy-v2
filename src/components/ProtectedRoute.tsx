@@ -1,18 +1,26 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useAuth } from '../contexts/AuthContext'
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, refreshUser } = useAuth()
   const navigate = useNavigate()
+  const [hasChecked, setHasChecked] = useState(false)
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    // Only fetch user if we haven't checked yet
+    if (!hasChecked) {
+      refreshUser().finally(() => setHasChecked(true))
+    }
+  }, [hasChecked, refreshUser])
+
+  useEffect(() => {
+    if (hasChecked && !isLoading && !isAuthenticated) {
       navigate({ to: '/auth/login', search: { redirect: location.pathname } })
     }
-  }, [isAuthenticated, isLoading, navigate])
+  }, [isAuthenticated, isLoading, navigate, hasChecked])
 
-  if (isLoading) {
+  if (!hasChecked || isLoading) {
     return (
       <div className="min-h-screen bg-bg-primary flex items-center justify-center">
         <div className="text-center">

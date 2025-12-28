@@ -5,6 +5,15 @@ export interface ApiError {
   stack?: string
 }
 
+// Custom error class for authentication errors (401)
+// We use this to silently handle unauthenticated state without console errors
+export class AuthError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'AuthError'
+  }
+}
+
 export interface ApiResponse<T = any> {
   data?: T
   error?: string
@@ -44,6 +53,11 @@ async function apiRequest<T>(
   })
 
   if (!response.ok) {
+    // For 401 errors, throw AuthError (silent, expected for unauthenticated users)
+    if (response.status === 401) {
+      throw new AuthError('Not authenticated')
+    }
+
     const error: ApiError = await response.json()
     throw new Error(error.error || 'Request failed')
   }

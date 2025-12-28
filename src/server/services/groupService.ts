@@ -101,7 +101,6 @@ export async function getGroupById(id: string) {
       _count: {
         select: {
           members: true,
-          joinRequests: true,
           files: true,
           sessions: true,
           chatMessages: true,
@@ -109,6 +108,22 @@ export async function getGroupById(id: string) {
       },
     },
   })
+
+  if (!group) {
+    return group
+  }
+
+  // Count only PENDING join requests
+  const countResult = await prisma.groupJoinRequest.count({
+    where: {
+      groupId: id,
+      status: 'PENDING',
+    },
+  })
+
+  // Add the count to the group object
+  const groupWithCount = group as any
+  groupWithCount._count.joinRequests = countResult
 
   return group
 }
