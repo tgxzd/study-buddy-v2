@@ -51,8 +51,12 @@ app.get('/api/health', (_req, res) => {
 const distPath = path.join(__dirname, '../../dist')
 app.use(express.static(distPath, { index: false }))
 
-// SPA fallback: serve index.html for all non-API routes
-app.get('*', (_req, res) => {
+// SPA fallback: serve index.html for all non-API, non-static routes
+app.use((req, res, next) => {
+  // Don't intercept API routes or static files that were already served
+  if (req.path.startsWith('/api') || req.path.includes('.')) {
+    return next()
+  }
   res.sendFile(path.join(distPath, 'index.html'))
 })
 
