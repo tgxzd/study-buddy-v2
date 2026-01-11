@@ -1,301 +1,335 @@
-Welcome to your new TanStack app! 
+<div align="center">
 
-# Getting Started
+  ![StudyBuddy Logo](public/logo192.png)
 
-To run this application:
+  # StudyBuddy
+
+  **Your Collaborative Learning Companion**
+
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
+  [![React](https://img.shields.io/badge/React-19-61DAFB)](https://react.dev/)
+  [![Node.js](https://img.shields.io/badge/Node.js-24-339933)](https://nodejs.org/)
+  [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791)](https://www.postgresql.org/)
+  [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
+  [Features](#features) • [Quick Start](#quick-start) • [Demo](#demo) • [Tech Stack](#tech-stack) • [Contributing](#contributing)
+
+</div>
+
+---
+
+## 📖 About
+
+StudyBuddy is a modern web application designed to help students collaborate effectively. Create study groups, share resources, schedule sessions, and learn together with friends and classmates.
+
+---
+
+## ✨ Features
+
+### 🔐 Authentication
+- Secure user registration and login
+- JWT-based session management
+- Persistent sessions with "Remember Me" option
+
+### 👥 Study Groups
+- Create and manage study groups
+- Browse and join existing groups
+- Invite code system for easy group sharing
+- Member management (add/remove members)
+
+### 📁 File Sharing
+- Upload and share study materials
+- Organize files by group
+- Download resources anytime
+
+### 📅 Session Scheduling
+- Plan and organize study sessions
+- Set dates, times, and locations
+- Add meeting links for virtual sessions
+
+### 📊 Dashboard
+- Personalized overview of activity
+- Quick access to groups, files, and sessions
+- Statistics and insights
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** 24+
+- **PostgreSQL** 16+
+- **Yarn** package manager
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/tgxzd/study-buddy-v2.git
+cd study-buddy-v2
+
+# Install dependencies
 yarn install
-yarn run start
+
+# Set up environment variables
+cp .env.example .env
 ```
 
-# Building For Production
+### Environment Variables
 
-To build this application for production:
+Create a `.env` file in the project root:
+
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/studybuddy"
+
+# JWT Secret (generate with: openssl rand -base64 32)
+JWT_SECRET="your-secret-key"
+
+# Session Secret
+SESSION_SECRET="your-session-secret"
+
+# Server
+PORT=3000
+NODE_ENV=development
+```
+
+### Database Setup
 
 ```bash
-yarn run build
+# Generate Prisma Client
+yarn prisma generate
+
+# Run migrations
+yarn prisma migrate deploy
+
+# (Optional) Seed database
+yarn prisma db seed
 ```
 
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+### Run the Application
 
 ```bash
-yarn run test
+# Development mode
+yarn dev
+
+# Production build
+yarn build
+yarn start
 ```
 
-## Styling
+Visit `http://localhost:3000` to see the application.
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+---
 
+## 🎬 Demo
 
-## Linting & Formatting
+### Homepage & Authentication
 
+![Homepage](public/homepage-pic.png)
 
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
+*Clean, modern interface with gradient backgrounds and smooth animations*
 
-```bash
-yarn run lint
-yarn run format
-yarn run check
+### Dashboard
+
+![Dashboard](public/dashboard-pic.png)
+
+*Your personalized hub for all activities*
+
+### Study Groups
+
+![Groups](public/group-pic.png)
+
+*Manage all your study groups in one place*
+
+### Create Group
+
+![Create Group](public/create-group-pic.png)
+
+*Easily create new study groups with descriptions*
+
+### Browse Groups
+
+![Browse Groups](public/browse-group-pic.png)
+
+*Discover and join existing study groups*
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend
+| Technology | Purpose |
+|------------|---------|
+| **React 19** | UI Framework |
+| **TypeScript** | Type Safety |
+| **Vite** | Build Tool |
+| **TanStack Router** | File-based Routing |
+| **Tailwind CSS 4** | Styling |
+| **Lucide React** | Icons |
+
+### Backend
+| Technology | Purpose |
+|------------|---------|
+| **Node.js 24** | Runtime Environment |
+| **Express** | Web Framework |
+| **TypeScript** | Type Safety |
+| **Prisma** | ORM |
+| **PostgreSQL** | Database |
+| **JWT** | Authentication |
+| **bcryptjs** | Password Hashing |
+
+### DevOps
+| Technology | Purpose |
+|------------|---------|
+| **Docker** | Containerization |
+| **Docker Compose** | Multi-container Orchestration |
+| **GitHub Actions** | CI/CD Pipeline |
+
+---
+
+## 📁 Project Structure
+
+```
+study-buddy-v2/
+├── public/                 # Static assets
+├── src/
+│   ├── components/         # Reusable UI components
+│   ├── contexts/           # React contexts (Auth, etc.)
+│   ├── lib/                # Utilities and API client
+│   ├── routes/             # TanStack Router file-based routes
+│   │   ├── auth/          # Authentication pages
+│   │   ├── dashboard.tsx  # Dashboard page
+│   │   └── groups/        # Group management pages
+│   ├── server/            # Express backend
+│   │   ├── middleware/    # Express middleware
+│   │   ├── routes/        # API routes
+│   │   ├── services/      # Business logic
+│   │   └── utils/         # Server utilities
+│   └── main.tsx           # Application entry point
+├── prisma/                # Database schema and migrations
+├── .container/            # Docker configuration
+│   ├── docker-compose.yml
+│   └── .env.example
+├── Dockerfile             # Docker image definition
+└── package.json           # Dependencies and scripts
 ```
 
+---
 
+## 🔧 Development
 
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
+### Available Scripts
 
-### Adding A Route
+| Script | Description |
+|--------|-------------|
+| `yarn dev` | Start development server |
+| `yarn build` | Build for production |
+| `yarn start` | Start production server |
+| `yarn lint` | Run ESLint |
+| `yarn format` | Format code with Prettier |
+| `yarn prisma generate` | Generate Prisma Client |
+| `yarn prisma migrate dev` | Create and apply migrations |
+| `yarn prisma studio` | Open Prisma Studio (database GUI) |
 
-To add a new route to your application just add another a new file in the `./src/routes` directory.
+### Adding New Routes
 
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+TanStack Router uses file-based routing. Add a new route by creating a file in `src/routes/`:
 
 ```tsx
-import { Link } from "@tanstack/react-router";
-```
+// src/routes/about.tsx
+import { createFileRoute } from '@tanstack/react-router'
 
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
+export const Route = createFileRoute('/about')({
+  component: AboutPage,
 })
+
+function AboutPage() {
+  return <div>About Page</div>
+}
 ```
 
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
+### Database Schema Changes
 
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
+1. Edit `prisma/schema.prisma`
+2. Run `yarn prisma migrate dev --name your_migration`
+3. The migration file will be created in `prisma/migrations/`
 
+---
 
-## Data Fetching
+## 🐳 Docker Deployment
 
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
+StudyBuddy includes Docker configuration for easy deployment.
 
 ```bash
-yarn add @tanstack/react-query @tanstack/react-query-devtools
+# Build and start all services
+cd .container
+docker compose up -d --build
+
+# View logs
+docker compose logs -f
+
+# Stop services
+docker compose down
 ```
 
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
+**Services:**
+- `studybuddy-app` - Main application (port 3000)
+- `studybuddy-db` - PostgreSQL database (port 5433)
 
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+---
 
-// ...
+## 🔄 CI/CD
 
-const queryClient = new QueryClient();
+Automated deployment is configured via GitHub Actions:
 
-// ...
+- **CI Pipeline** - Runs tests on every push
+- **CD Pipeline** - Auto-deploys to VPS on push to `main` branch
 
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
+See `.github/workflows/` for configuration details.
 
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
+---
 
-You can also add TanStack Query Devtools to the root route (optional).
+## 🤝 Contributing
 
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+Contributions are welcome! Please follow these steps:
 
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-Now you can use `useQuery` to fetch your data.
+---
 
-```tsx
-import { useQuery } from "@tanstack/react-query";
+## 📝 License
 
-import "./App.css";
+This project is licensed under the MIT License.
 
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
+---
 
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+## 👥 Authors
 
-export default App;
-```
+- **Aizad** - [tgxzd](https://github.com/tgxzd)
 
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
+---
 
-## State Management
+## 🙏 Acknowledgments
 
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
+- Built with [TanStack Router](https://tanstack.com/router)
+- UI styled with [Tailwind CSS](https://tailwindcss.com/)
+- Database managed with [Prisma](https://www.prisma.io/)
+- Icons provided by [Lucide](https://lucide.dev/)
 
-First you need to add TanStack Store as a dependency:
+---
 
-```bash
-yarn add @tanstack/store
-```
+## 📧 Contact
 
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
+For questions or support, please open an issue on GitHub.
 
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
+<div align="center">
 
-const countStore = new Store(0);
+  **Made with ❤️ for students, by students**
 
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
-```
-
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+</div>
