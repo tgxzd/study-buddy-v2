@@ -37,7 +37,7 @@ router.post('/register', asyncHandler(async (req, res) => {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Set to true once HTTPS is configured with Nginx
   }
 
   if (rememberMe) {
@@ -83,7 +83,7 @@ router.post('/login', asyncHandler(async (req, res) => {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Set to true once HTTPS is configured with Nginx
   }
 
   if (rememberMe) {
