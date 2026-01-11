@@ -16,6 +16,7 @@ import { Route as GroupsCreateRouteImport } from './routes/groups/create'
 import { Route as GroupsIdRouteImport } from './routes/groups/$id'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as GroupsIdSessionsRouteImport } from './routes/groups/$id.sessions'
 import { Route as GroupsIdRequestsRouteImport } from './routes/groups/$id.requests'
 import { Route as GroupsIdFilesRouteImport } from './routes/groups/$id.files'
 import { Route as GroupsIdEditRouteImport } from './routes/groups/$id.edit'
@@ -55,6 +56,11 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/auth/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GroupsIdSessionsRoute = GroupsIdSessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => GroupsIdRoute,
+} as any)
 const GroupsIdRequestsRoute = GroupsIdRequestsRouteImport.update({
   id: '/requests',
   path: '/requests',
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/groups/$id/edit': typeof GroupsIdEditRoute
   '/groups/$id/files': typeof GroupsIdFilesRoute
   '/groups/$id/requests': typeof GroupsIdRequestsRoute
+  '/groups/$id/sessions': typeof GroupsIdSessionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/groups/$id/edit': typeof GroupsIdEditRoute
   '/groups/$id/files': typeof GroupsIdFilesRoute
   '/groups/$id/requests': typeof GroupsIdRequestsRoute
+  '/groups/$id/sessions': typeof GroupsIdSessionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/groups/$id/edit': typeof GroupsIdEditRoute
   '/groups/$id/files': typeof GroupsIdFilesRoute
   '/groups/$id/requests': typeof GroupsIdRequestsRoute
+  '/groups/$id/sessions': typeof GroupsIdSessionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/groups/$id/edit'
     | '/groups/$id/files'
     | '/groups/$id/requests'
+    | '/groups/$id/sessions'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/groups/$id/edit'
     | '/groups/$id/files'
     | '/groups/$id/requests'
+    | '/groups/$id/sessions'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/groups/$id/edit'
     | '/groups/$id/files'
     | '/groups/$id/requests'
+    | '/groups/$id/sessions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -208,6 +220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/groups/$id/sessions': {
+      id: '/groups/$id/sessions'
+      path: '/sessions'
+      fullPath: '/groups/$id/sessions'
+      preLoaderRoute: typeof GroupsIdSessionsRouteImport
+      parentRoute: typeof GroupsIdRoute
+    }
     '/groups/$id/requests': {
       id: '/groups/$id/requests'
       path: '/requests'
@@ -236,12 +255,14 @@ interface GroupsIdRouteChildren {
   GroupsIdEditRoute: typeof GroupsIdEditRoute
   GroupsIdFilesRoute: typeof GroupsIdFilesRoute
   GroupsIdRequestsRoute: typeof GroupsIdRequestsRoute
+  GroupsIdSessionsRoute: typeof GroupsIdSessionsRoute
 }
 
 const GroupsIdRouteChildren: GroupsIdRouteChildren = {
   GroupsIdEditRoute: GroupsIdEditRoute,
   GroupsIdFilesRoute: GroupsIdFilesRoute,
   GroupsIdRequestsRoute: GroupsIdRequestsRoute,
+  GroupsIdSessionsRoute: GroupsIdSessionsRoute,
 }
 
 const GroupsIdRouteWithChildren = GroupsIdRoute._addFileChildren(

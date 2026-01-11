@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: studybuddy-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-studybuddy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-studybuddy}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-studybuddy}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # StudyBuddy App
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: studybuddy:latest
+    container_name: studybuddy-app
+    environment:
+      # Connect to postgres container
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-studybuddy}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-studybuddy}"
+      JWT_SECRET: ${JWT_SECRET}
+      SESSION_SECRET: ${SESSION_SECRET}
+      PORT: ${PORT:-3000}
+      NODE_ENV: ${NODE_ENV:-production}
+    ports:
+      - "${PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

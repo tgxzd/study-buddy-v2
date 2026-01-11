@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useRouterState } from '@tanstack/react-router'
 import { ArrowLeft, Upload, Download, Trash2, FileText, FileImage, File } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
 import Button from '@/components/ui/Button'
@@ -23,15 +23,19 @@ export const Route = createFileRoute('/groups/$id/files')({
 function GroupFiles() {
   const { id } = Route.useParams()
   const navigate = useNavigate()
+  const routerState = useRouterState()
   const [files, setFiles] = useState<FileItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // Track route/location changes to refetch data
+  const location = routerState.location.pathname
+
   useEffect(() => {
     fetchFiles()
-  }, [id])
+  }, [id, location])
 
   const fetchFiles = async () => {
     try {

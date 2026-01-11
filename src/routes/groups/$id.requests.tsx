@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useRouterState } from '@tanstack/react-router'
 import { ArrowLeft, Check, X, UserPlus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Button from '@/components/ui/Button'
@@ -23,10 +23,14 @@ export const Route = createFileRoute('/groups/$id/requests')({
 function JoinRequests() {
   const { id } = Route.useParams()
   const navigate = useNavigate()
+  const routerState = useRouterState()
   const [requests, setRequests] = useState<JoinRequest[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [processingRequestId, setProcessingRequestId] = useState<string | null>(null)
+
+  // Track route/location changes to refetch data
+  const location = routerState.location.pathname
 
   const fetchRequests = async () => {
     try {
@@ -42,7 +46,7 @@ function JoinRequests() {
 
   useEffect(() => {
     fetchRequests()
-  }, [id])
+  }, [id, location])
 
   const handleRequest = async (requestId: string, action: 'accept' | 'reject') => {
     setProcessingRequestId(requestId)

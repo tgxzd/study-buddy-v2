@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate, Outlet, useMatches } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate, Outlet, useMatches, useRouterState } from '@tanstack/react-router'
 import { ArrowLeft, Users, Calendar, FileText, Settings, UserPlus, Trash2, Copy, LogOut, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Button from '@/components/ui/Button'
@@ -44,6 +44,7 @@ export const Route = createFileRoute('/groups/$id')({
 function GroupDetail() {
   const { id } = Route.useParams()
   const navigate = useNavigate()
+  const routerState = useRouterState()
   const { user } = useAuth()
   const [group, setGroup] = useState<Group | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -59,14 +60,18 @@ function GroupDetail() {
   const hasChildRoute = currentRouteId && (
     currentRouteId.includes('/edit') ||
     currentRouteId.includes('/files') ||
-    currentRouteId.includes('/requests')
+    currentRouteId.includes('/requests') ||
+    currentRouteId.includes('/sessions')
   )
 
   const isOwner = user?.id === group?.ownerId
 
+  // Track route changes to refetch data
+  const location = routerState.location.pathname
+
   useEffect(() => {
     fetchGroup()
-  }, [id])
+  }, [id, location])
 
   const fetchGroup = async () => {
     try {
@@ -366,14 +371,13 @@ function GroupDetail() {
             </Card>
           </Link>
 
-          {/* Sessions - Coming Soon */}
-          <div className="pointer-events-none">
-            <Card variant="glass" className="p-6 opacity-50 cursor-not-allowed text-center">
+          <Link to="/groups/$id/sessions" params={{ id }} className="block">
+            <Card variant="glass" className="p-6 hover:scale-[1.02] transition-transform cursor-pointer text-center">
               <Calendar className="w-8 h-8 text-green-400 mx-auto mb-3" />
               <h3 className="text-white font-semibold mb-1">Sessions</h3>
-              <p className="text-sm text-text-muted">Coming Soon</p>
+              <p className="text-sm text-text-muted">Schedule study sessions</p>
             </Card>
-          </div>
+          </Link>
 
           {/* Chat - Coming Soon */}
           <div className="pointer-events-none">

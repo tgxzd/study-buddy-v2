@@ -214,3 +214,41 @@ export const filesApi = {
       method: 'DELETE',
     }),
 }
+
+/**
+ * Sessions API
+ */
+export const sessionsApi = {
+  list: (groupId: string, filter?: 'upcoming' | 'past') =>
+    apiRequest<{ sessions: any[] }>(`/sessions/group/${groupId}${filter ? `?filter=${filter}` : ''}`),
+
+  create: (data: {
+    title: string
+    description?: string
+    date: Date
+    link?: string
+    location?: string
+    groupId: string
+  }) =>
+    apiRequest<{ session: any }>('/sessions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id: string, data: {
+    title?: string
+    description?: string
+    date?: Date
+    link?: string
+    location?: string
+  }) =>
+    apiRequest<{ session: any }>(`/sessions/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id: string) =>
+    apiRequest<{ message: string }>(`/sessions/${id}`, {
+      method: 'DELETE',
+    }),
+}

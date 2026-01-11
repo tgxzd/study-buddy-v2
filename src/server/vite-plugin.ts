@@ -5,6 +5,7 @@ import authRoutes from './routes/auth'
 import groupRoutes from './routes/groups'
 import fileRoutes from './routes/files'
 import dashboardRoutes from './routes/dashboard'
+import sessionRoutes from './routes/sessions'
 import { errorHandler } from './middleware/errorHandler'
 import { requestLogger } from './middleware/requestLogger'
 import multer from 'multer'
@@ -39,6 +40,7 @@ export function apiServer(): Plugin {
       apiApp.use('/api/auth', authRoutes)
       apiApp.use('/api/groups', groupRoutes)
       apiApp.use('/api/files', fileRoutes)
+      apiApp.use('/api/sessions', sessionRoutes)
       apiApp.use('/api/dashboard', dashboardRoutes)
 
       // Health check
