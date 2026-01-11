@@ -303,17 +303,6 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-## 📝 License
-
-This project is licensed under the MIT License.
-
----
-
-## 👥 Authors
-
-- **Aizad** - [tgxzd](https://github.com/tgxzd)
-
----
 
 ## 🙏 Acknowledgments
 
@@ -324,12 +313,4 @@ This project is licensed under the MIT License.
 
 ---
 
-## 📧 Contact
 
-For questions or support, please open an issue on GitHub.
-
-<div align="center">
-
-  **Made with ❤️ for students, by students**
-
-</div>
