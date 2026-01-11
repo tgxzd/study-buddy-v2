@@ -5,7 +5,7 @@ FROM node:24-alpine
 WORKDIR /app
 
 # Install OpenSSL and other dependencies needed for Prisma
-RUN apk add --no-cache openssl1.1
+RUN apk add --no-cache openssl
 
 # Copy package files first (better caching)
 COPY package.json yarn.lock ./
