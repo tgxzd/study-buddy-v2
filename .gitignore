@@ -49,6 +49,9 @@ count.txt
 .tanstack
 .wrangler
 
+# Documentation
+documentation/
+
 # Additional security - ignore any env files in subdirectories
 **/.env
 **/.env.local
