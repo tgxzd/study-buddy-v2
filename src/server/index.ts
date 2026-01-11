@@ -2,12 +2,17 @@ import 'dotenv/config'
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import multer from 'multer'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import authRoutes from './routes/auth'
 import groupRoutes from './routes/groups'
 import fileRoutes from './routes/files'
 import dashboardRoutes from './routes/dashboard'
 import { errorHandler } from './middleware/errorHandler'
 import { requestLogger } from './middleware/requestLogger'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const app = express()
 
@@ -42,7 +47,16 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', message: 'Server is running' })
 })
 
-// Error handling
+// Serve static files from dist folder (frontend build)
+const distPath = path.join(__dirname, '../../dist')
+app.use(express.static(distPath, { index: false }))
+
+// SPA fallback: serve index.html for all non-API routes
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'))
+})
+
+// Error handling (must be after SPA fallback)
 app.use(errorHandler)
 
 // Only start listening if not running in Vite (for production)
